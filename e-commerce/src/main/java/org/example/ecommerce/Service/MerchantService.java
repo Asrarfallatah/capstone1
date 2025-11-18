@@ -59,10 +59,10 @@ public class MerchantService {
 
         for (int i = 0 ; i < merchantStocks.size(); i++) {
 
-            if ((merchantStocks.get(i).getProductID().equalsIgnoreCase(productID)) && (merchantStocks.get(i).getMerchantID().equalsIgnoreCase(merchantID))) {
+            if (merchantStocks.get(i).getProductID().equalsIgnoreCase(productID) && merchantStocks.get(i).getMerchantID().equalsIgnoreCase(merchantID)) {
 
-                merchantStocks.get(i).setMerchantStock( (merchantStocks.get(i).getMerchantStock() + amount) ) ;
-                return "stoke has been filled and increased in the DataBase Successfully ! ";
+                merchantStocks.get(i).setMerchantStock( merchantStocks.get(i).getMerchantStock() + amount );
+                return "Stoke has been filled and increased in the DataBase Successfully ! ";
             }
 
         }
@@ -71,45 +71,93 @@ public class MerchantService {
     }
 
 
-    /// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//    // extra credit 2  : calculate how much a merchant earned
-//
-//    public double getMerchantEarnings(String merchantID , ArrayList<MerchantStock> merchantStocks , ArrayList<Product> products){
-//
-//        double totalEarnings = 0;
-//
-//        for (int i = 0; i < merchantStocks.size(); i++) {
-//
-//
-//            if (merchantStocks.get(i).getMerchantID().equalsIgnoreCase(merchantID)){
-//
-//                int currentStock = merchantStocks.get(i).getMerchantStock();
-//                int initialStock = 10;
-//
-//                int sold = initialStock - currentStock;
-//
-//                // find product price
-//                for (int j = 0; j < products.size(); j++) {
-//
-//                    if (products.get(j).getProductID().equalsIgnoreCase(merchantStocks.get(i).getProductID())){
-//
-//                        totalEarnings += sold * products.get(j).getProductPrice();
-//                        break;
-//                    }
-//
-//
-//                }
-//
-//
-//
-//            }
-//
-//        }
-//
-//        return totalEarnings;
-//    }
+        /// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // extra point 7 : calculate how much a merchant earned
+        public double getEarnings(String merchantID , ArrayList<MerchantStock> merchantStocks , ArrayList<Product> products){
+
+            double totalEarnings = 0;
+
+            for (int i = 0; i < merchantStocks.size(); i++) {
+
+                if (merchantStocks.get(i).getMerchantID().equalsIgnoreCase(merchantID)){
+
+                    int currentStock = merchantStocks.get(i).getMerchantStock();
+                    int initialStock = 10;
+
+                    int sold = initialStock - currentStock;
+
+                    if (sold > 0){
+
+                        for (int j = 0; j < products.size(); j++) {
+                            if (products.get(j).getProductID().equalsIgnoreCase(merchantStocks.get(i).getProductID())){
+
+                                totalEarnings += sold * products.get(j).getProductPrice();
+                                break;
+                            }
+                        }
+
+                    }
+                }
+            }
+
+            return totalEarnings;
+        }
+
+    // extra point 8 : see best and most selling product and how many it sells
+
+    public String getMerchantMostBoughtItem(String merchantID, ArrayList<MerchantStock> merchantStocks, ArrayList<Product> products, ArrayList<String> purchaseHistory) {
+
+
+        int maxCount = 0;
+        String mostBoughtProductID = null;
+
+
+       // see stocks of this merchant
+
+        for (int i = 0; i < merchantStocks.size(); i++) {
+
+            if (merchantStocks.get(i).getMerchantID().equalsIgnoreCase(merchantID)) {
+
+                String productID = merchantStocks.get(i).getProductID();
+                int count = 0;
+
+                // count purchases from history
+                for (int j = 0; j < purchaseHistory.size(); j++) {
+                    if (purchaseHistory.get(j).contains(":" + productID + ":")) {
+                        count++;
+                    }
+                }
+
+                if (count > maxCount) {
+                    maxCount = count;
+                    mostBoughtProductID = productID;
+                }
+            }
+        }
+
+        if (mostBoughtProductID == null) {
+            return "This merchant has no items purchased yet ! ";
+        }
+
+        // get product name
+        String productName = "";
+
+        for (int i = 0; i < products.size(); i++) {
+            if (products.get(i).getProductID().equalsIgnoreCase(mostBoughtProductID)) {
+                productName = products.get(i).getProductName();
+                break;
+            }
+        }
+
+        return ( productName + " was bought " + maxCount + " times" ) ;
+    }
+
+
+
+
 
 
 }

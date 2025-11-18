@@ -132,6 +132,9 @@ public class UserController {
             case 6:
                 return ResponseEntity.status(400).body(new ApiResponse("User balance is less than product price !"));
 
+            case 7:
+                return ResponseEntity.status(400).body(new ApiResponse("Admin users are not allowed to buy products !"));
+
             default:
                 return ResponseEntity.status(400).body(new ApiResponse("some error happened !"));
         }
@@ -145,13 +148,13 @@ public class UserController {
     /// //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // extra point 1 : make user see product from cheap to expensive
-    @GetMapping("/cheap-to-expensive")
-    public ResponseEntity<?> getSortedProducts(){
+    @GetMapping("/sort-category/{categoryName}/{order}")
+    public ResponseEntity<?> getSortedProducts(@PathVariable String categoryName , @PathVariable String order){
 
-        ArrayList<Product> sorted = userService.getSortedProducts(productService.getProducts());
+        ArrayList<Product> sorted = userService.sortProductsByCategory(categoryName , order , categoryService.getCategories(), productService.getProducts());
 
         if (sorted.isEmpty()){
-            return ResponseEntity.status(400).body(new ApiResponse("There is no products in the DataBase !"));
+            return ResponseEntity.status(400).body(new ApiResponse("There is no products found in the DataBase to sort them !"));
         }
 
         return ResponseEntity.status(200).body(sorted);
@@ -161,29 +164,7 @@ public class UserController {
 
 
 
-
-
-
-
-    // extra point 2  : add money to the balance by id
-    @PutMapping("/add-balance/{userID}/{amount}")
-    public ResponseEntity<?> addBalance(@PathVariable String userID , @PathVariable double amount){
-
-        boolean isAdded = userService.addToBalance(userID , amount);
-
-        if (isAdded){
-            return ResponseEntity.status(200).body(new ApiResponse("Balance has been added Successfully !"));
-        }
-
-        return ResponseEntity.status(400).body(new ApiResponse("No user with that ID in the DataBase !"));
-    }
-
-
-
-
-
-
-    // extra point 3  : see all product for a specific  category by category name
+    // extra point 2  : see all product for a specific  category by category name
     @GetMapping("/category/{categoryName}")
     public ResponseEntity<?> getProductsByCategory(@PathVariable String categoryName){
 
@@ -201,7 +182,44 @@ public class UserController {
 
 
 
-    // extra point 4  : Search for a product by product name
+
+
+
+    // extra point 3  : add money to the balance by id
+    @PutMapping("/add-balance/{userID}/{amount}")
+    public ResponseEntity<?> addBalance(@PathVariable String userID , @PathVariable double amount){
+
+        boolean isAdded = userService.addToBalance(userID , amount);
+
+        if (isAdded){
+            return ResponseEntity.status(200).body(new ApiResponse("Balance has been added Successfully !"));
+        }
+
+        return ResponseEntity.status(400).body(new ApiResponse("No user with that ID in the DataBase !"));
+    }
+
+
+
+
+
+    // extra point 4  : see product that are in stock only
+    @GetMapping("/in-stock")
+    public ResponseEntity<?> getProductsInStock(){
+
+        ArrayList<MerchantStock> inStock = userService.getProductInStock(merchantStockService.getMerchantStocks());
+
+        if (inStock.isEmpty()){
+            return ResponseEntity.status(400).body(new ApiResponse("There is no products in stock in the DataBase !"));
+        }
+
+        return ResponseEntity.status(200).body(inStock);
+    }
+
+
+
+
+
+    // extra point 5  : Search for a product by product name
     @GetMapping("/search-product/{productName}")
     public ResponseEntity<?> searchProduct(@PathVariable String productName){
 
@@ -215,21 +233,17 @@ public class UserController {
     }
 
 
+    // extra point 6 : get user purchase history
+    @GetMapping("/history/{userID}")
+    public ResponseEntity<?> getHistory(@PathVariable String userID){
 
+        ArrayList<String> history = userService.getUserPurchaseHistory(userID);
 
-
-
-    // extra point 5  : see product that are in stock only
-    @GetMapping("/in-stock")
-    public ResponseEntity<?> getProductsInStock(){
-
-        ArrayList<MerchantStock> inStock = userService.getProductInStock(merchantStockService.getMerchantStocks());
-
-        if (inStock.isEmpty()){
-            return ResponseEntity.status(400).body(new ApiResponse("There is no products in stock in the DataBase !"));
+        if (history.isEmpty()){
+            return ResponseEntity.status(400).body(new ApiResponse("This user did not buy any thing yet !"));
         }
 
-        return ResponseEntity.status(200).body(inStock);
+        return ResponseEntity.status(200).body(history);
     }
 
 

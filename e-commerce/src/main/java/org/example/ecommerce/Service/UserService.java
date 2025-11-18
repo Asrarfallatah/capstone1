@@ -12,8 +12,12 @@ import java.util.ArrayList;
 public class UserService {
 
 
+    // 48 hour challenge no AI just focus,  search, see educational vid ,  look for idea, if fails idea delete it and go to safer one  !! goal t win !!
+
     //create Virtual DataBase
     ArrayList<User> users = new ArrayList<>();
+
+    private final ArrayList<String> purchaseHistory = new ArrayList<>();
 
 
     // display all users information from Virtual DataBase
@@ -63,6 +67,11 @@ public class UserService {
 
                 User user = users.get(i);
 
+                // Check if the user is admin
+                if (user.getUserRole().equalsIgnoreCase("admin")){
+                    return 7; // Admin can not buy
+                }
+
                 // now check product inside user loop
                 for (int j = 0; j < products.size(); j++) {
 
@@ -73,8 +82,7 @@ public class UserService {
                         // check merchant stock
                         for (int k = 0; k < merchantStocks.size(); k++) {
 
-                            if (merchantStocks.get(k).getProductID().equalsIgnoreCase(productID)
-                                    && merchantStocks.get(k).getMerchantID().equalsIgnoreCase(merchantID)){
+                            if (merchantStocks.get(k).getProductID().equalsIgnoreCase(productID) && merchantStocks.get(k).getMerchantID().equalsIgnoreCase(merchantID)){
 
                                 MerchantStock merchantStock = merchantStocks.get(k);
 
@@ -93,6 +101,9 @@ public class UserService {
 
                                 // deduct price
                                 user.setUserBalance(user.getUserBalance() - product.getProductPrice());
+
+                                // Log purchase to history
+                                purchaseHistory.add(userID + ":" + product.getProductName() + ":" + product.getProductPrice());
 
                                 return 1; // success
                             }
@@ -114,63 +125,100 @@ public class UserService {
 
     /// //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   //  extra point 1 : make user see product from cheap to expensive (
-
-             public ArrayList<Product> getSortedProducts(ArrayList<Product> products){
-
-                 // create new list
-                 ArrayList<Product> sortedProducts = new ArrayList<>(products);
 
 
-                 for (int i = 0; i < sortedProducts.size(); i++) {
 
-                             for (int j = 0; j < sortedProducts.size() - 1; j++) {
+   //  extra point 1 : make user see product from cheap to expensive by category using bubble sort
 
-                                 if (sortedProducts.get(j).getProductPrice() > sortedProducts.get(j + 1).getProductPrice()) {
+            public ArrayList<Product> sortProductsByCategory(String categoryName, String order, ArrayList<Category> categories, ArrayList<Product> products) {
 
-                                     // switch
-                                     Product temp = sortedProducts.get(j);
-                                     sortedProducts.set(j, sortedProducts.get(j + 1));
-                                     sortedProducts.set(j + 1, temp);
-                                 }
-                             }
-                 }
+                ArrayList<Product> sorted = new ArrayList<>();
 
-                 return sortedProducts;
-             }
+                // get categoryID
+                String categoryID = null;
+                for (int i = 0; i < categories.size(); i++) {
+                    if (categories.get(i).getCategoryName().equalsIgnoreCase(categoryName)) {
+                        categoryID = categories.get(i).getCategoryID();
+                        break;
+                    }
+                }
+
+                if (categoryID == null) {
+                    return sorted;
+                }
+
+                // add products of that category
+                for (int i = 0; i < products.size(); i++) {
+                    if (products.get(i).getCategoryID().equalsIgnoreCase(categoryID)) {
+                        sorted.add(products.get(i));
+                    }
+                }
+
+                // bubble sort
+                for (int i = 0; i < sorted.size(); i++) {
+                    for (int j = 0; j < sorted.size() - 1; j++) {
+
+                        if (order.equalsIgnoreCase("asc")) {
+                            // cheap to expensive
+                            if (sorted.get(j).getProductPrice() > sorted.get(j + 1).getProductPrice()) {
+                                Product tmp = sorted.get(j);
+                                sorted.set(j, sorted.get(j + 1));
+                                sorted.set(j + 1, tmp);
+                            }
+                        } else {
+                            // expensive to cheap
+                            if (sorted.get(j).getProductPrice() < sorted.get(j + 1).getProductPrice()) {
+                                Product tmp = sorted.get(j);
+                                sorted.set(j, sorted.get(j + 1));
+                                sorted.set(j + 1, tmp);
+                            }
+                        }
+
+                    }
+                }
+
+                return sorted;
+            }
+
+
+
+
+
 
 
 
     // extra point 2 : see all product for a specific  category by category name
-    public  ArrayList<Product> getByCategory (String categoryName , ArrayList<Category> categories, ArrayList<Product> products){
 
-        ArrayList<Product> foundProducts = new ArrayList<>();
 
-        //find categoryID by categoryName
-        String categoryID = "not found";
-        for (int i = 0; i < categories.size(); i++) {
+        public  ArrayList<Product> getByCategory (String categoryName , ArrayList<Category> categories, ArrayList<Product> products){
 
-            if (categories.get(i).getCategoryName().equalsIgnoreCase(categoryName)){
-                categoryID = categories.get(i).getCategoryID();
-                break;
+            ArrayList<Product> foundProducts = new ArrayList<>();
+
+            //find categoryID by category name
+            String categoryID = null;
+            for (int i = 0; i < categories.size(); i++) {
+
+                if (categories.get(i).getCategoryName().equalsIgnoreCase(categoryName)){
+                    categoryID = categories.get(i).getCategoryID();
+                    break;
+                }
             }
-        }
 
-        // if categoryID not found
-        if (categoryID.equalsIgnoreCase( "not found")){
+            // if categoryID not found
+            if (categoryID == null){
+                return foundProducts;
+            }
+
+            //check category product
+            for (int i = 0; i < products.size(); i++) {
+
+                if (products.get(i).getCategoryID().equalsIgnoreCase(categoryID)){
+                    foundProducts.add(products.get(i));
+                }
+            }
+
             return foundProducts;
         }
-
-        //check category product
-        for (int i = 0; i < products.size(); i++) {
-
-            if (products.get(i).getCategoryID().equalsIgnoreCase(categoryID)){
-                foundProducts.add(products.get(i));
-            }
-        }
-
-        return foundProducts;
-    }
 
 
 
@@ -178,10 +226,13 @@ public class UserService {
     // extra point 3 : add money to the balance to a specific user by user id
     public boolean addToBalance(String userID,  double userBalance){
         for (int i = 0; i < users.size(); i++) {
+
             if (users.get(i).getUserID().equalsIgnoreCase(userID)){
-                users.get(i).setUserBalance(userBalance);
+                double oldBalance = users.get(i).getUserBalance();
+                users.get(i).setUserBalance( (oldBalance + userBalance) );
                 return true;
             }
+
         }
         return false;
     }
@@ -206,7 +257,7 @@ public class UserService {
 
 
 
-    // extra point 5  : search for a specific product by product name and see its information
+    // extra point 5  :  to search for a specific product by product name and see its information
      public  Product foundProduct(String productName, ArrayList<Product> product ){
 
              for (int i = 0; i < product.size(); i++) {
@@ -221,7 +272,31 @@ public class UserService {
 
 
 
+
+
+    // extra point 6 : history
+
+    public ArrayList<String> getUserPurchaseHistory(String userID) {
+
+        ArrayList<String> userHistory = new ArrayList<>();
+
+        for (int i = 0; i < purchaseHistory.size(); i++) {
+            String record = purchaseHistory.get(i);
+            // Check userID
+            if (record.startsWith(userID + ":")) {
+                userHistory.add(record);
+            }
+        }
+        return userHistory;
+    }
+
          /// //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+         //this is for extra point 8 in merchant  service and controller
+
+         public ArrayList<String> getPurchaseHistory(){
+             return purchaseHistory;
+         }
 
 
 

@@ -8,9 +8,11 @@ import org.example.ecommerce.Model.Merchant;
 import org.example.ecommerce.Service.MerchantService;
 import org.example.ecommerce.Service.MerchantStockService;
 import org.example.ecommerce.Service.ProductService;
+import org.example.ecommerce.Service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/v1/merchant")
@@ -21,7 +23,7 @@ public class MerchantController {
     public final MerchantService merchantService;
     public final MerchantStockService merchantStockService;
     public final ProductService productService;
-
+    public final UserService userService;
 
 
     // display all merchants information from Virtual DataBase
@@ -100,17 +102,28 @@ public class MerchantController {
 
 /// ////////////////////////////////////////////////////////////////
 
-//    // extra credit2 : calculate how much a merchant earned
-//
-//    @GetMapping("/earnings/{merchantID}")
-//    public ResponseEntity<?> getMerchantEarnings(@PathVariable String merchantID){
-//
-//        double earnings = merchantService.getMerchantEarnings(merchantID , merchantStockService.getMerchantStocks(), productService.getProducts());
-//
-//        return ResponseEntity.status(200).body(new ApiResponse("Merchant earned : " + earnings + " SR"));
-//
-//    }
+    // extra point 7  : calculate how much a merchant earned
 
+        @GetMapping("/earnings/{merchantID}")
+        public ResponseEntity<?> getMerchantEarnings(@PathVariable String merchantID){
+
+            double earnings = merchantService.getEarnings(merchantID , merchantStockService.getMerchantStocks(), productService.getProducts());
+
+            return ResponseEntity.status(200).body(new ApiResponse("Merchant earned is equal to : " + earnings + " SAR "));
+        }
+
+
+
+    // extra point 8 : see best and most selling product and how many it sells
+
+
+    @GetMapping("/most-bought/{merchantID}")
+    public ResponseEntity<?> getMostBought(@PathVariable String merchantID){
+
+        String result = merchantService.getMerchantMostBoughtItem(merchantID, merchantStockService.getMerchantStocks(), productService.getProducts(), userService.getPurchaseHistory());
+
+        return ResponseEntity.status(200).body(result);
+    }
 
 
 }
