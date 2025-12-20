@@ -1,53 +1,55 @@
-# E-Commerce System
+# E-Commerce Backend System
 
 ## 📌 Project Overview
-This project is a backend E-Commerce system inspired by Amazon, developed using Spring Boot.  
-It demonstrates core backend concepts such as RESTful APIs, business logic handling, role validation, and product management.
+This project is a **backend E-Commerce system** inspired by Amazon, developed using **Spring Boot**.  
+It focuses on implementing real-world online shopping logic such as product browsing, purchasing, balance management, merchant earnings, and role-based validations.
 
-The system allows users to browse products, search, filter, purchase items, and manage balances, while merchants can track their earnings.  
-Administrative actions are restricted to ensure correct system behavior.
+The system is designed to simulate a complete backend workflow for an E-Commerce platform where users can purchase products, merchants can track their earnings, and admins are restricted from performing customer actions.
+
+---
+
+## 🎯 System Idea
+The idea behind this system is to build a structured E-Commerce backend that:
+- Allows users to browse and search products easily
+- Ensures only available (in-stock) products can be purchased
+- Supports filtering and sorting to improve user experience
+- Tracks merchant earnings accurately
+- Enforces strict business rules to prevent invalid actions
 
 ---
 
 ## ⚙️ Technologies Used
-- Java
-- Spring Boot
-- RESTful APIs
-- Maven
-- JPA / Hibernate
-- MySQL (or any relational database)
+- Java  
+- Spring Boot  
+- RESTful APIs  
+- Maven  
+- JPA / Hibernate  
+- MySQL (or any relational database)  
+- Postman (API testing)
 
 ---
 
-## 🚀 Features
-
-### 🛍️ Product Features
+## 🛍️ Product Features
 - View all products
-- View only in-stock products
-- Search for a product by name and view full information
+- View only **in-stock products**
+- Search for a product by name and view full details
+- Filter products by **category name**
 - Sort products:
-  - Cheap to expensive
-  - Expensive to cheap
-- Filter products by category name
+  - Cheap → Expensive
+  - Expensive → Cheap
 
 ---
 
-### 👤 User Features
-- Add balance to a user
-- Buy products
-- View user purchase history by ID
+## 👤 User Features
+- Add balance to a user account
+- Purchase products
+- View user purchase history by user ID
 
 ---
 
-### 🏪 Merchant Features
+## 🏪 Merchant Features
 - Calculate total earnings for a merchant
-
----
-
-### 🔐 Business Rules
-- Admin users are not allowed to buy products
-- Role validation is checked during purchase operations
-- Prevents invalid actions to maintain system integrity
+- Track sales through completed purchases
 
 ---
 
@@ -55,10 +57,29 @@ Administrative actions are restricted to ensure correct system behavior.
 - Sort products from cheap to expensive
 - Sort products from expensive to cheap
 - View products by category name
-- View in-stock products only
+- View only in-stock products
 - Search product by name
 - Add balance to user
 - Calculate merchant earnings
+- Get user purchase history by ID
+
+---
+
+## 🔐 Business Rules & Validations
+- Admin users **cannot buy products**
+- Purchase method checks user role before execution
+- Products must be in stock to be purchased
+- User must have sufficient balance
+- All critical logic is enforced at the service layer
+
+---
+
+## 🧠 System Architecture
+The project follows a **layered architecture**:
+- **Controller Layer** – Handles HTTP requests
+- **Service Layer** – Contains business logic and validations
+- **Repository Layer** – Manages database operations
+- **Model Layer** – Represents database entities
 
 ---
 
@@ -77,13 +98,32 @@ src
 
 ---
 
-## 📈 Learning Outcomes
-- Implemented real-world E-Commerce backend logic
-- Applied role-based access validation
-- Designed clean REST APIs using Spring Boot
-- Practiced layered backend architecture
+## 🧪 API Testing
+All endpoints were tested using **Postman** to ensure:
+- Correct responses
+- Valid error handling
+- Business rule enforcement
+- Stable purchase workflows
 
 ---
 
+## 📈 Learning Outcomes
+- Designing a real-world E-Commerce backend
+- Applying role-based restrictions
+- Implementing complex business logic
+- Structuring scalable Spring Boot applications
+- Writing clean and maintainable code
+
+---
+
+## 📝 Final Notes
+This project was developed as part of a **Backend Capstone Project** and demonstrates practical backend development skills aligned with industry standards.
+
+---
+
+## ⭐ Thank You
+Thank you for reviewing this project!
+
+------------------
 ## Developed By
 Asrar Fallatah 
